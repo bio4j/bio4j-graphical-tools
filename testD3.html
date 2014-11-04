@@ -103,7 +103,10 @@ function updateWindow(){
 }
 
 function onShowNodeNamesChange(checkbox){
-    labels.display = checkbox.value;
+    console.log(checkbox.value);
+    labels.forEach(function(d){
+        console.log(d.display);
+        d.display = checkbox.value;});
 }
 
 function onForceResume(force){
