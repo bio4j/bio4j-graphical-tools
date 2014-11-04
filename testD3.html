@@ -2,33 +2,44 @@
 <meta charset="utf-8">
 <style>
 
-.node {
-  stroke: #fff;
-  stroke-width: 1.5px;
-}
+    .node {
+    stroke: #fff;
+    stroke-width: 1.5px;
+    }
 
-.edge {
-  stroke: #999;
-  stroke-opacity: .6;
-}
+    .edge {
+    stroke: #999;
+    stroke-opacity: .6;
+    }
 
 </style>
 <body>
 <div id="sliders">
-      <label>Force layout sliders </label>
-      <form>
-	  <label>Gravity slider</label>
-      <input id="gravitySlider" type="range" name="gravitySlider" min="0.1" max="1" value="0.1" step="0.05"/>	  
-      </form>
-	  <form>
-	  <label>Charge slider</label>
-	  <input id="chargeSlider" type="range" name="chargeSlider" min="-100" max="-1" value="-30" step="5"/>
-	  </form>
-	  <form>
-	  <label>Links distance</label>
-	  <input id="linkDistanceSlider" type="range" name="linkDistanceSlider" min="5" max="50" value="20" step="5"/>
-	  </form>
- </div>
+    <label>Force layout sliders </label>
+
+    <form>
+        <label>Gravity slider</label>
+        <input id="gravitySlider" type="range" name="gravitySlider" min="0.1" max="1" value="0.1" step="0.05"/>
+    </form>
+    <form>
+        <label>Charge slider</label>
+        <input id="chargeSlider" type="range" name="chargeSlider" min="-100" max="-1" value="-30" step="5"/>
+    </form>
+    <form>
+        <label>Links distance</label>
+        <input id="linkDistanceSlider" type="range" name="linkDistanceSlider" min="5" max="50" value="20" step="5"/>
+    </form>
+    <input name="stopStartButton"
+           type="button"
+           value="Start"
+           onclick="onStopStartButtonChange(this)"/>
+    <form>
+        <label>Show nodes</label>
+        <input name="showNodeNamesCheckBox"
+           type="checkbox"
+           onclick="onShowNodeNamesChange(this)"/>
+    </form>
+</div>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script type="text/javascript"> if (!window.console) console = {log: function() {}}; </script>
 <script>
@@ -45,6 +56,7 @@ var gravity = 0.1;
 var charge = -10;
 var linkDistance = 20;
 //var k = Math.sqrt(nodesLength / (x * y));
+var labels;
 
 var nodeSizeScale = d3.scale.linear()
 		.domain([0,20])
@@ -84,10 +96,35 @@ d3.select("#linkDistanceSlider").on('change', function(d) {
 			.start();
 		  console.log(linkDistance);
 		  });
-		
+
 function updateWindow(){
     x = w.innerWidth || e.clientWidth || g.clientWidth;
     y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+}
+
+function onShowNodeNamesChange(checkbox){
+    labels.display = checkbox.value;
+}
+
+function onForceResume(force){
+    var button = d3.select("#stopStartButton")
+    if(button.value == "Start"){
+        button.value = "Stop";
+    }
+    console.log("Force started!");
+}
+
+function onStopStartButtonChange(button){
+
+    if(button.value == "Stop"){
+        button.value = "Start";
+        force.stop();
+        console.log("stopped");
+    }else if(button.value == "Start"){
+        button.value = "Stop";
+        force.start();
+        console.log("started");
+    }
 }
 
 d3.json("protein_interpros.json", function(error, graph) {
@@ -107,8 +144,7 @@ d3.json("protein_interpros.json", function(error, graph) {
  
   force
       .nodes(graph.nodes)
-      .links(graph.edges)		  
-      .start();
+      .links(graph.edges);
 
   var edge = svg.selectAll(".edge")
       .data(graph.edges)
@@ -116,16 +152,32 @@ d3.json("protein_interpros.json", function(error, graph) {
       .attr("class", "edge")
       .style("stroke-width", function(d) { return Math.sqrt(d.value); });
 
-  var node = svg.selectAll(".node")
-      .data(graph.nodes)
-    .enter().append("circle")
-      .attr("class", "node")
-      .attr("r", 5)
-      .style("fill", function(d) { return color(d.group); })
-      .call(force.drag);
 
-  node.append("title")
-      .text(function(d) { return d.name; });
+  // Create the groups under svg
+  var gnodes = svg.selectAll('g.gnode')
+    .data(graph.nodes)
+    .enter()
+    .append('g')
+    .classed('gnode', true)
+    .call(force.drag);
+
+
+  var interproNode = gnodes.append("circle")
+    .filter(function(d){ return d.group == "interpro"; })
+    .attr("class", "intepronode")
+    .attr("r", 10)
+    .style("fill", function(d) { return color(d.group); });
+
+  var proteinNode = gnodes.append("rect")
+    .filter(function(d){ return d.group == "protein"; })
+    .attr("class", "proteinnode")
+    .attr("width", 10)
+    .attr("height", 10)
+    .style("fill", function(d) { return color(d.group); });
+
+  // Append the labels to each group
+  labels = gnodes.append("text")
+    .text(function(d) { return d.name; });
 
   force.on("tick", function() {
     edge.attr("x1", function(d) { return d.source.x; })
@@ -133,10 +185,14 @@ d3.json("protein_interpros.json", function(error, graph) {
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; });
 
-    node.attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
+      // Translate the groups
+      gnodes.attr("transform", function(d) {
+        return 'translate(' + [d.x, d.y] + ')';
+      });
   });
 });
+
+
 
 </script>
 </body>
