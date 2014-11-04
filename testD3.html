@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.edge {
+  stroke: #999;
+  stroke-opacity: .6;
+}
+
+</style>
+<body>
+<div id="sliders">
+      <label>Force layout sliders </label>
+      <form>
+	  <label>Gravity slider</label>
+      <input id="gravitySlider" type="range" name="gravitySlider" min="0.1" max="1" value="0.1" step="0.05"/>	  
+      </form>
+	  <form>
+	  <label>Charge slider</label>
+	  <input id="chargeSlider" type="range" name="chargeSlider" min="-100" max="-1" value="-30" step="5"/>
+	  </form>
+	  <form>
+	  <label>Links distance</label>
+	  <input id="linkDistanceSlider" type="range" name="linkDistanceSlider" min="5" max="50" value="20" step="5"/>
+	  </form>
+ </div>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script type="text/javascript"> if (!window.console) console = {log: function() {}}; </script>
+<script>
+
+var w = window,
+    d = document,
+    e = d.documentElement,
+    g = d.getElementsByTagName('body')[0],
+    x = 1280,
+    y = 780;
+	
+var nodesLength = 1;
+var gravity = 0.1;
+var charge = -10;
+var linkDistance = 20;
+//var k = Math.sqrt(nodesLength / (x * y));
+
+var nodeSizeScale = d3.scale.linear()
+		.domain([0,20])
+		.range([1,10]);
+	
+var color = d3.scale.category20();
+
+var force = d3.layout.force()
+	.linkDistance(30)
+	.charge(charge)
+    .gravity(gravity)
+	.size([x,y]);
+	
+window.onresize = updateWindow;
+
+var svg = d3.select("body")
+			.append("svg")
+			.attr("width", x)
+			.attr("height", y);
+			
+d3.select("#gravitySlider").on('change', function(d) {
+          gravity = this.value;
+		  force.gravity(gravity)
+				.start();
+		  console.log(gravity);
+		  });
+d3.select("#chargeSlider").on('change', function(d) {
+          charge = this.value;
+		  force.charge(charge)
+				.start();
+		  
+		  console.log(charge);
+		  });
+d3.select("#linkDistanceSlider").on('change', function(d) {
+          linkDistance = this.value;
+		  force.linkDistance(linkDistance)
+			.start();
+		  console.log(linkDistance);
+		  });
+		
+function updateWindow(){
+    x = w.innerWidth || e.clientWidth || g.clientWidth;
+    y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+}
+
+d3.json("protein_interpros.json", function(error, graph) {
+
+ var nodeMap = {};
+ graph.nodes.forEach(function(x) { nodeMap[x.name] = x; });
+ 
+ graph.edges = graph.edges.map(function(x) {
+      return {
+        source: nodeMap[x.source],
+        target: nodeMap[x.target],
+        value: x.value
+      };
+ });
+ 
+ nodesLength = graph.nodes.length;
+ 
+  force
+      .nodes(graph.nodes)
+      .links(graph.edges)		  
+      .start();
+
+  var edge = svg.selectAll(".edge")
+      .data(graph.edges)
+    .enter().append("line")
+      .attr("class", "edge")
+      .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+  var node = svg.selectAll(".node")
+      .data(graph.nodes)
+    .enter().append("circle")
+      .attr("class", "node")
+      .attr("r", 5)
+      .style("fill", function(d) { return color(d.group); })
+      .call(force.drag);
+
+  node.append("title")
+      .text(function(d) { return d.name; });
+
+  force.on("tick", function() {
+    edge.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+  });
+});
+
+</script>
+</body>
