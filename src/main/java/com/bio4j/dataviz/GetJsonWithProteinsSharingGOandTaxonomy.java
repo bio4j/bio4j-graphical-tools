@@ -115,7 +115,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy {
 						GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> go = goOptional.get();
 						//---proteins linked to GO term---
 						Optional<Stream<Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>>> goAnnotationOptional = go.goAnnotation_inV();
-						
+
 						if(goAnnotationOptional.isPresent()){
 
 							Stream<Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> proteinsStream = goAnnotationOptional.get();

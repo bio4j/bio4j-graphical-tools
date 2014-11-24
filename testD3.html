@@ -165,10 +165,16 @@ d3.json("protein_interpros.json", function(error, graph) {
     .call(force.drag);
 
 
-  var interproNode = gnodes.append("circle")
-    .filter(function(d){ return d.group == "interpro"; })
-    .attr("class", "intepronode")
+  var goNode = gnodes.append("circle")
+    .filter(function(d){ return d.group == "go"; })
+    .attr("class", "gonode")
     .attr("r", 10)
+    .style("fill", function(d) { return color(d.group); });
+	
+  var ncbiNode = gnodes.append("circle")
+    .filter(function(d){ return d.group == "ncbi_taxon"; })
+    .attr("class", "ncbinode")
+    .attr("r", 15)
     .style("fill", function(d) { return color(d.group); });
 
   var proteinNode = gnodes.append("rect")

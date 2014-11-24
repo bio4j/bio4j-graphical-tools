@@ -1,0 +1,14 @@
+<scheduled_executions>
+  
+  <execution>
+    <class_full_name>com.bio4j.dataviz.GetJsonWithProteinsSharingGOandTaxonomy</class_full_name>
+    <arguments>      
+	  <argument>bio4j</argument>
+	  <argument>go_ids.txt</argument>
+	  <argument>ncbi_ids.txt</argument>
+	  <argument>output.json</argument>
+	  <argument>any</argument>
+    </arguments>
+  </execution> 
+  
+</scheduled_executions>
