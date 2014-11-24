@@ -3,7 +3,7 @@
   <execution>
     <class_full_name>com.bio4j.dataviz.GetJsonWithProteinsSharingGOandTaxonomy</class_full_name>
     <arguments>      
-	  <argument>bio4j</argument>
+	  <argument>/mnt/bio4jdb/bio4j_sprot</argument>
 	  <argument>go_ids.txt</argument>
 	  <argument>ncbi_ids.txt</argument>
 	  <argument>output.json</argument>

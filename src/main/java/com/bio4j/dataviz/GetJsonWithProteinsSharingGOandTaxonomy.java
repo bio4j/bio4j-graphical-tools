@@ -12,6 +12,7 @@ import com.bio4j.titan.model.uniprot_ncbiTaxonomy.TitanUniprotNCBITaxonomyGraph;
 import com.bio4j.titan.util.DefaultTitanGraph;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.ohnosequences.util.Executable;
 import com.thinkaurelius.titan.core.*;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -26,7 +27,7 @@ import java.util.stream.Stream;
  *
  * This program gets the Interpro motifs which are unique for an specific child of the NCBI taxon provided
  */
-public class GetJsonWithProteinsSharingGOandTaxonomy {
+public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 
 	public static final String HEADER = "Protein accession\tProtein name";
 	public static final String PROTEIN_GROUP = "protein";
@@ -34,6 +35,15 @@ public class GetJsonWithProteinsSharingGOandTaxonomy {
 	public static final String NCBI_TAXON_GROUP = "ncbi_taxon";
 	public static final String PROTEIN_GO_GROUP = "protein_go";
 	public static final String PROTEIN_NCBI_TAXON_GROUP = "protein_ncbi_taxon";
+
+	@Override
+	public void execute(ArrayList<String> array) {
+		String[] args = new String[array.size()];
+		for (int i = 0; i < array.size(); i++) {
+			args[i] = array.get(i);
+		}
+		main(args);
+	}
 
 	public static void main(String[] args){
 		if(args.length != 5){
@@ -224,4 +234,6 @@ public class GetJsonWithProteinsSharingGOandTaxonomy {
 
 		}
 	}
+
+
 }
