@@ -16,6 +16,7 @@ bucketSuffix := "era7.com"
 
 libraryDependencies ++= Seq(
   "bio4j" % "bio4j-titan" % "0.4.0-SNAPSHOT",
+  "com.google.code.gson" % "gson" % "2.2.4",
   // test deps
   "junit" % "junit" % "3.8.1" % "test",
   "org.scalatest" %% "scalatest" % "2.2.2" % "test"

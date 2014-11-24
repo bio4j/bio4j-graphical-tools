@@ -12,6 +12,8 @@ import com.bio4j.titan.model.ncbiTaxonomy.TitanNCBITaxonomyGraph;
 import com.bio4j.titan.model.uniprot.TitanUniprotGraph;
 import com.bio4j.titan.model.uniprot_ncbiTaxonomy.TitanUniprotNCBITaxonomyGraph;
 import com.bio4j.titan.util.DefaultTitanGraph;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.thinkaurelius.titan.core.*;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -29,6 +31,9 @@ import java.util.stream.Stream;
 public class GetJsonWithProteinsSharingGOandTaxonomy {
 
 	public static final String HEADER = "Protein accession\tProtein name";
+	public static final String PROTEIN_GROUP = "protein";
+	public static final String GO_GROUP = "go";
+	public static final String NCBI_TAXON_GROUP = "ncbi_taxon";
 
 	public static void main(String[] args){
 		if(args.length != 5){
@@ -57,6 +62,13 @@ public class GetJsonWithProteinsSharingGOandTaxonomy {
 				File goFile = new File(goTermsFileSt);
 				File ncbiTaxonFile = new File(ncbiTaxonIdsFileSt);
 				File outFile = new File(outFileSt);
+
+				//-----------------------DATAVIZ/JSON PART -------------------------------------
+				Graph graph = new Graph();
+				List<Node> nodes = new LinkedList<Node>();
+				graph.setNodes(nodes);
+				List<Edge> edges = new LinkedList<Edge>();
+				graph.setEdges(edges);
 
 
 				System.out.println("Reading GO term IDs....");
@@ -90,6 +102,8 @@ public class GetJsonWithProteinsSharingGOandTaxonomy {
 				TitanUniprotNCBITaxonomyGraph uniprotNCBITaxonomyGraph = new TitanUniprotNCBITaxonomyGraph(defGraph, new TitanUniprotGraph(defGraph), new TitanNCBITaxonomyGraph(defGraph));
 
 				boolean firstGo = true;
+
+
 
 				//---iterating through GO terms provided--
 				for (String goId : goTermIds){
@@ -160,22 +174,28 @@ public class GetJsonWithProteinsSharingGOandTaxonomy {
 
 				}
 
-				//-----------------------DATAVIZ/JSON PART -------------------------------------
-				Graph graph = new Graph();
-				List<Node> nodes = new LinkedList<Node>();
-				graph.setNodes(nodes);
-				List<Edge> edges = new LinkedList<Edge>();
-				graph.setEdges(edges);
-
-				for ()
 
 
-//				System.out.println("Writing output file....");
-//
-//				for(String proteinId : finalListOfProteins){
-//					outBuff.write(proteinId + "\n");
-//				}
+				//-----PROTEINS-----
+				for (String proteinId : finalListOfProteins){
+					Node proteinNode = new Node(proteinId, PROTEIN_GROUP);
+					nodes.add(proteinNode);
+				}
+				//-----GO-----
+				for (String goId : goTermIds){
+					Node goNode = new Node(goId, GO_GROUP);
+					nodes.add(goNode);
+				}
+				//-----NCBI TAXONS-----
+				for (String ncbiTaxonId : ncbiTaxonIds){
+					Node ncbiTaxonNode = new Node(ncbiTaxonId, NCBI_TAXON_GROUP);
+					nodes.add(ncbiTaxonNode);
+				}
 
+
+				System.out.println("Writing output file....");
+				Gson gson = new GsonBuilder().setPrettyPrinting().create();
+				outBuff.write(gson.toJson(graph));
 				System.out.println("Closing output file...");
 				outBuff.close();
 
