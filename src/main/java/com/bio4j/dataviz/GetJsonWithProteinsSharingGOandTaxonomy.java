@@ -34,6 +34,8 @@ public class GetJsonWithProteinsSharingGOandTaxonomy {
 	public static final String PROTEIN_GROUP = "protein";
 	public static final String GO_GROUP = "go";
 	public static final String NCBI_TAXON_GROUP = "ncbi_taxon";
+	public static final String PROTEIN_GO_GROUP = "protein_go";
+	public static final String PROTEIN_NCBI_TAXON_GROUP = "protein_ncbi_taxon";
 
 	public static void main(String[] args){
 		if(args.length != 5){
@@ -180,6 +182,16 @@ public class GetJsonWithProteinsSharingGOandTaxonomy {
 				for (String proteinId : finalListOfProteins){
 					Node proteinNode = new Node(proteinId, PROTEIN_GROUP);
 					nodes.add(proteinNode);
+					Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein = uniprotNCBITaxonomyGraph.uniprotGraph().proteinAccessionIndex().getVertex(proteinId).get();
+					for(GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> goTerm : protein.goAnnotation_outV().get().collect(Collectors.toList())){
+						if(goTermIds.contains(goTerm.id())){
+							Edge edge = new Edge(proteinId, goTerm.id(), "1", PROTEIN_GO_GROUP);
+							edges.add(edge);
+						}
+					}
+					Edge edge = new Edge(proteinId, protein.proteinNCBITaxon_outV().get().id(), "1", PROTEIN_NCBI_TAXON_GROUP);
+					edges.add(edge);
+
 				}
 				//-----GO-----
 				for (String goId : goTermIds){
@@ -205,8 +217,6 @@ public class GetJsonWithProteinsSharingGOandTaxonomy {
 			}catch(Exception e){
 				e.printStackTrace();
 			}
-
-
 
 		}
 	}

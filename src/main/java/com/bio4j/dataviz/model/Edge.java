@@ -8,15 +8,17 @@ public class Edge {
 	public String source;
 	public String target;
 	public String value;
+	public String group;
 
 	public Edge(){
 
 	}
 
-	public Edge(String target, String source, String value) {
+	public Edge(String target, String source, String value, String group) {
 		this.target = target;
 		this.source = source;
 		this.value = value;
+		this.group = group;
 	}
 
 	public String getSource() {
@@ -41,5 +43,13 @@ public class Edge {
 
 	public void setValue(String value) {
 		this.value = value;
+	}
+
+	public String getGroup() {
+		return group;
+	}
+
+	public void setGroup(String group) {
+		this.group = group;
 	}
 }
