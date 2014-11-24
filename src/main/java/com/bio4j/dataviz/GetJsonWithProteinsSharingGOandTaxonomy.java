@@ -5,9 +5,7 @@ import com.bio4j.dataviz.model.Graph;
 import com.bio4j.dataviz.model.Node;
 import com.bio4j.model.go.vertices.GoTerm;
 import com.bio4j.model.ncbiTaxonomy.vertices.NCBITaxon;
-import com.bio4j.model.uniprot.vertices.Interpro;
 import com.bio4j.model.uniprot.vertices.Protein;
-import com.bio4j.model.uniprot_ncbiTaxonomy.UniprotNCBITaxonomyGraph;
 import com.bio4j.titan.model.ncbiTaxonomy.TitanNCBITaxonomyGraph;
 import com.bio4j.titan.model.uniprot.TitanUniprotGraph;
 import com.bio4j.titan.model.uniprot_ncbiTaxonomy.TitanUniprotNCBITaxonomyGraph;
@@ -109,41 +107,47 @@ public class GetJsonWithProteinsSharingGOandTaxonomy {
 
 				//---iterating through GO terms provided--
 				for (String goId : goTermIds){
+
 					Optional<GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> goOptional = uniprotNCBITaxonomyGraph.uniprotGraph().uniprotGoGraph().goGraph().goTermIdIndex().getVertex(goId);
+
 					if(goOptional.isPresent()){
 
 						GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> go = goOptional.get();
-						//---proteins linked to interpro motif---
-						Stream<Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> proteinsStream = go.goAnnotation_inV();
-						List<Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> proteins = proteinsStream.collect(Collectors.toList());
+						//---proteins linked to GO term---
+						Optional<Stream<Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>>> goAnnotationOptional = go.goAnnotation_inV();
+						
+						if(goAnnotationOptional.isPresent()){
 
-						//-----------------ALL-----------------------------------
-						if(goTermsConstraint.equals("all")){
-							if(firstGo){
-								firstGo = false;
+							Stream<Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> proteinsStream = goAnnotationOptional.get();
+							List<Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> proteins = proteinsStream.collect(Collectors.toList());
+
+							//-----------------ALL-----------------------------------
+							if(goTermsConstraint.equals("all")){
+								if(firstGo){
+									firstGo = false;
+									for (Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein : proteins){
+										proteinsFulfillingGO.add(protein.accession());
+									}
+								}
+
+								List<String> tempProteins = new LinkedList<>();
+								for (Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein : proteins){
+									tempProteins.add(protein.accession());
+								}
+								for (String tempProteinId : tempProteins){
+									if(!proteinsFulfillingGO.contains(tempProteinId)){
+										proteinsFulfillingGO.remove(tempProteinId);
+										break;
+									}
+								}
+								//-----------------ANY-----------------------------------
+							}else{
 								for (Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein : proteins){
 									proteinsFulfillingGO.add(protein.accession());
 								}
 							}
 
-							List<String> tempProteins = new LinkedList<>();
-							for (Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein : proteins){
-								tempProteins.add(protein.accession());
-							}
-							for (String tempProteinId : tempProteins){
-								if(!proteinsFulfillingGO.contains(tempProteinId)){
-									proteinsFulfillingGO.remove(tempProteinId);
-									break;
-								}
-							}
-							//-----------------ANY-----------------------------------
-						}else{
-							for (Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein : proteins){
-								proteinsFulfillingGO.add(protein.accession());
-							}
 						}
-
-
 
 					}else{
 						throw new Exception("The GO term provided: " + goId + " does not exist... Finishing the program... :(");
