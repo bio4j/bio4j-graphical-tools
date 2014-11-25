@@ -168,7 +168,9 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 								//-----------------ANY-----------------------------------
 							}else{
 								for (Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein : proteins){
-									proteinsFulfillingGO.add(protein.accession());
+									String proteinAccession = protein.accession();
+									proteinsFulfillingGO.add(proteinAccession);
+									System.out.println("Protein found for GO term: " + proteinAccession);
 								}
 							}
 
@@ -185,18 +187,25 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				System.out.println("Checking up proteins taxonomy...");
 				for (String proteinId : proteinsFulfillingGO){
 
+					System.out.println("Current protein: " + proteinId);
+
 					Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein = titanUniprotGraph.proteinAccessionIndex().getVertex(proteinId).get();
 					Optional<NCBITaxon<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> taxonOptional = protein.proteinNCBITaxon_outV();
 
 					if(taxonOptional.isPresent()){
 						NCBITaxon<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> taxon = taxonOptional.get();
+
+						System.out.println("Protein taxon: " + taxon.scientificName());
+
 						if(ncbiTaxonIds.contains(taxon.id())){
 							finalListOfProteins.add(proteinId);
+							System.out.print("The taxon passed the NCBI filer!");
 						}else{
 							while(taxon.ncbiTaxonParent_outV().isPresent()){
 								taxon = taxon.ncbiTaxonParent_outV().get();
 								if(ncbiTaxonIds.contains(taxon.id())){
 									finalListOfProteins.add(proteinId);
+									System.out.print("The taxon passed the NCBI filer!");
 									break;
 								}
 							}
@@ -206,6 +215,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				}
 
 
+				System.out.println("The final list of proteins has the following size: " + finalListOfProteins.size());
 
 				//-----PROTEINS-----
 				for (String proteinId : finalListOfProteins){
