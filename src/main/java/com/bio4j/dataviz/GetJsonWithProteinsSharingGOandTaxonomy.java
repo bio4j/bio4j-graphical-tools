@@ -211,7 +211,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				for (String proteinId : finalListOfProteins){
 					Node proteinNode = new Node(proteinId, PROTEIN_GROUP);
 					nodes.add(proteinNode);
-					Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein = uniprotNCBITaxonomyGraph.uniprotGraph().proteinAccessionIndex().getVertex(proteinId).get();
+					Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein = titanUniprotGraph.proteinAccessionIndex().getVertex(proteinId).get();
 					for(GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> goTerm : protein.goAnnotation_outV().get().collect(Collectors.toList())){
 						if(goTermIds.contains(goTerm.id())){
 							Edge edge = new Edge(proteinId, goTerm.id(), "1", PROTEIN_GO_GROUP);
@@ -241,7 +241,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				outBuff.close();
 
 				System.out.println("Closing the manager....");
-				uniprotNCBITaxonomyGraph.raw().shutdown();
+				titanUniprotNCBITaxonomyGraph.raw().shutdown();
 
 			}catch(Exception e){
 				e.printStackTrace();
