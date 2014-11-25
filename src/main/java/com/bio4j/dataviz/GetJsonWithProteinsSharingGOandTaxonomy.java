@@ -110,10 +110,19 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				TitanGraph titanGraph = TitanFactory.open(conf);
 				DefaultTitanGraph defGraph = new DefaultTitanGraph(titanGraph);
 
-				System.out.println("Creating the graph manager....");
-				TitanUniprotNCBITaxonomyGraph uniprotNCBITaxonomyGraph = new TitanUniprotNCBITaxonomyGraph(defGraph, new TitanUniprotGraph(defGraph), new TitanNCBITaxonomyGraph(defGraph));
-				TitanUniprotGoGraph titanUniprotGoGraph = new TitanUniprotGoGraph(defGraph, new TitanUniprotGraph(defGraph), new TitanGoGraph(defGraph));
-				//uniprotNCBITaxonomyGraph.uniprotGraph().withGo();
+				System.out.println("Creating the graph managers....");
+
+				TitanGoGraph titanGoGraph = new TitanGoGraph(defGraph);
+				TitanUniprotGraph titanUniprotGraph = new TitanUniprotGraph(defGraph);
+				TitanNCBITaxonomyGraph titanNCBITaxonomyGraph = new TitanNCBITaxonomyGraph(defGraph);
+
+				TitanUniprotNCBITaxonomyGraph titanUniprotNCBITaxonomyGraph = new TitanUniprotNCBITaxonomyGraph(defGraph, titanUniprotGraph, titanNCBITaxonomyGraph);
+				TitanUniprotGoGraph titanUniprotGoGraph = new TitanUniprotGoGraph(defGraph, titanUniprotGraph, titanGoGraph);
+
+				titanGoGraph.withUniprot(titanUniprotGoGraph);
+				titanUniprotGraph.withGo(titanUniprotGoGraph);
+				titanUniprotGraph.withNCBITaxonomy(titanUniprotNCBITaxonomyGraph);
+				titanNCBITaxonomyGraph.withUniprot(titanUniprotNCBITaxonomyGraph);
 
 				boolean firstGo = true;
 
@@ -123,14 +132,12 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				//---iterating through GO terms provided--
 				for (String goId : goTermIds){
 
-					Optional<GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> goOptional = titanUniprotGoGraph.goGraph().goTermIdIndex().getVertex(goId);
+					Optional<GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> goOptional = titanGoGraph.goTermIdIndex().getVertex(goId);
 
 					if(goOptional.isPresent()){
 
 						GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> go = goOptional.get();
-						System.out.println("go is null --> " + (go == null));
-						System.out.println("go.id() --> " + go.id());
-						System.out.println("titanUniprotGoGraph.GoAnnotation() is null --> " + (titanUniprotGoGraph.GoAnnotation() == null));
+
 						//---proteins linked to GO term---
 						Optional<Stream<Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>>> goAnnotationOptional = go.goAnnotation_inV();
 
@@ -178,7 +185,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				System.out.println("Checking up proteins taxonomy...");
 				for (String proteinId : proteinsFulfillingGO){
 
-					Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein = uniprotNCBITaxonomyGraph.uniprotGraph().proteinAccessionIndex().getVertex(proteinId).get();
+					Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein = titanUniprotGraph.proteinAccessionIndex().getVertex(proteinId).get();
 					Optional<NCBITaxon<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> taxonOptional = protein.proteinNCBITaxon_outV();
 
 					if(taxonOptional.isPresent()){
