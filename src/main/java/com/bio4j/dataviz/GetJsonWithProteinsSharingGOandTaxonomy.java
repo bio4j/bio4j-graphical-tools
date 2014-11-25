@@ -128,6 +128,9 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 					if(goOptional.isPresent()){
 
 						GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> go = goOptional.get();
+						System.out.println("go is null --> " + (go == null));
+						System.out.println("go.id() --> " + go.id());
+						System.out.println("titanUniprotGoGraph.GoAnnotation() is null --> " + (titanUniprotGoGraph.GoAnnotation() == null));
 						//---proteins linked to GO term---
 						Optional<Stream<Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>>> goAnnotationOptional = go.goAnnotation_inV();
 
