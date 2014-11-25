@@ -9,6 +9,7 @@ import com.bio4j.model.uniprot.vertices.Protein;
 import com.bio4j.titan.model.go.TitanGoGraph;
 import com.bio4j.titan.model.ncbiTaxonomy.TitanNCBITaxonomyGraph;
 import com.bio4j.titan.model.uniprot.TitanUniprotGraph;
+import com.bio4j.titan.model.uniprot_go.TitanUniprotGoGraph;
 import com.bio4j.titan.model.uniprot_ncbiTaxonomy.TitanUniprotNCBITaxonomyGraph;
 import com.bio4j.titan.util.DefaultTitanGraph;
 import com.google.gson.Gson;
@@ -111,7 +112,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 
 				System.out.println("Creating the graph manager....");
 				TitanUniprotNCBITaxonomyGraph uniprotNCBITaxonomyGraph = new TitanUniprotNCBITaxonomyGraph(defGraph, new TitanUniprotGraph(defGraph), new TitanNCBITaxonomyGraph(defGraph));
-				TitanGoGraph titanGoGraph = new TitanGoGraph(defGraph);
+				TitanUniprotGoGraph titanUniprotGoGraph = new TitanUniprotGoGraph(defGraph, new TitanUniprotGraph(defGraph), new TitanGoGraph(defGraph));
 				//uniprotNCBITaxonomyGraph.uniprotGraph().withGo();
 
 				boolean firstGo = true;
@@ -122,7 +123,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				//---iterating through GO terms provided--
 				for (String goId : goTermIds){
 
-					Optional<GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> goOptional = titanGoGraph.goTermIdIndex().getVertex(goId);
+					Optional<GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> goOptional = titanUniprotGoGraph.goGraph().goTermIdIndex().getVertex(goId);
 
 					if(goOptional.isPresent()){
 
