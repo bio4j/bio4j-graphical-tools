@@ -130,7 +130,7 @@ function onStopStartButtonChange(button){
     }
 }
 
-d3.json("protein_interpros.json", function(error, graph) {
+d3.json("output.json", function(error, graph) {
 
  var nodeMap = {};
  graph.nodes.forEach(function(x) { nodeMap[x.name] = x; });

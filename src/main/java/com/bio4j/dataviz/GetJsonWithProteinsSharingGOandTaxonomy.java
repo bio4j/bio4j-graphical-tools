@@ -199,7 +199,9 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 							finalListOfProteins.add(proteinId);
 							System.out.print("The taxon passed the NCBI filer!");
 						}else{
+							System.out.println("Looking for taxon in ancestors...");
 							while(taxon.ncbiTaxonParent_outV().isPresent()){
+								System.out.println("Current taxon: " + taxon.scientificName() + " " + taxon.id());
 								taxon = taxon.ncbiTaxonParent_outV().get();
 								if(ncbiTaxonIds.contains(taxon.id())){
 									finalListOfProteins.add(proteinId);
@@ -207,6 +209,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 									break;
 								}
 							}
+							System.out.println("It was not found... filter not passed... :(");
 						}
 					}
 
