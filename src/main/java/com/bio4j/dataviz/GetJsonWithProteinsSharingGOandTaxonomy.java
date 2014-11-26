@@ -208,6 +208,8 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 							System.out.println("Looking for taxon in ancestors...");
 
 							List<String> tempListOfNCBITaxon = new LinkedList<>();
+							HashSet<String> targetsInvolvedInEdgesAlreadyCreated = new HashSet<>();
+
 							tempListOfNCBITaxon.add(taxon.id());
 
 							while(taxon.ncbiTaxonParent_inV().isPresent()){
@@ -223,6 +225,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 									System.out.print("The taxon passed the NCBI filer!");
 									tempListOfNCBITaxon.add(taxon.id());
 
+
 									//---Creating hierarchy nodes plus the edges among them---
 
 									for (int i=0; i< tempListOfNCBITaxon.size(); i++){
@@ -230,8 +233,13 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 										Node ncbiTaxonNode = new Node(tempTaxonId, NCBI_TAXON_GROUP);
 										nodes.add(ncbiTaxonNode);
 										if(i < (tempListOfNCBITaxon.size() - 1)){
-											Edge edge = new Edge(tempListOfNCBITaxon.get(i), tempListOfNCBITaxon.get(i+1), "1", NCBI_TAXON_PARENT_GROUP);
-											edges.add(edge);
+											String target = tempListOfNCBITaxon.get(i+1);
+											String source = tempListOfNCBITaxon.get(i);
+											if(!targetsInvolvedInEdgesAlreadyCreated.contains(target)){
+												Edge edge = new Edge(source, target, "1", NCBI_TAXON_PARENT_GROUP);
+												edges.add(edge);
+												targetsInvolvedInEdgesAlreadyCreated.add(target);
+											}
 										}
 									}
 									break;
@@ -245,6 +253,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 
 
 				System.out.println("The final list of proteins has the following size: " + finalListOfProteins.size());
+
 
 				//-----PROTEINS-----
 				for (String proteinId : finalListOfProteins){
@@ -266,12 +275,6 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 					Node goNode = new Node(goId, GO_GROUP);
 					nodes.add(goNode);
 				}
-				//-----NCBI TAXONS-----
-				for (String ncbiTaxonId : ncbiTaxonIds){
-					Node ncbiTaxonNode = new Node(ncbiTaxonId, NCBI_TAXON_GROUP);
-					nodes.add(ncbiTaxonNode);
-				}
-
 
 				System.out.println("Writing output file....");
 				Gson gson = new GsonBuilder().setPrettyPrinting().create();
