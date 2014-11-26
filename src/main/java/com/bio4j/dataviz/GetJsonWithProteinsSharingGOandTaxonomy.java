@@ -36,6 +36,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 	public static final String NCBI_TAXON_GROUP = "ncbi_taxon";
 	public static final String PROTEIN_GO_GROUP = "protein_go";
 	public static final String PROTEIN_NCBI_TAXON_GROUP = "protein_ncbi_taxon";
+	public static final String NCBI_TAXON_PARENT_GROUP = "ncbi_taxon_parent";
 
 	@Override
 	public void execute(ArrayList<String> array) {
@@ -196,10 +197,18 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 						System.out.println("Protein taxon: " + taxon.scientificName());
 
 						if(ncbiTaxonIds.contains(taxon.id())){
+
 							finalListOfProteins.add(proteinId);
+							Node ncbiTaxonNode = new Node(taxon.id(), NCBI_TAXON_GROUP);
+							nodes.add(ncbiTaxonNode);
 							System.out.print("The taxon passed the NCBI filer!");
+
 						}else{
+
 							System.out.println("Looking for taxon in ancestors...");
+
+							List<String> tempListOfNCBITaxon = new LinkedList<>();
+							tempListOfNCBITaxon.add(taxon.id());
 
 							while(taxon.ncbiTaxonParent_inV().isPresent()){
 
@@ -207,9 +216,24 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 
 								taxon = taxon.ncbiTaxonParent_inV().get();
 
+								tempListOfNCBITaxon.add(taxon.id());
+
 								if(ncbiTaxonIds.contains(taxon.id())){
 									finalListOfProteins.add(proteinId);
 									System.out.print("The taxon passed the NCBI filer!");
+									tempListOfNCBITaxon.add(taxon.id());
+
+									//---Creating hierarchy nodes plus the edges among them---
+
+									for (int i=0; i< tempListOfNCBITaxon.size(); i++){
+										String tempTaxonId = tempListOfNCBITaxon.get(i);
+										Node ncbiTaxonNode = new Node(tempTaxonId, NCBI_TAXON_GROUP);
+										nodes.add(ncbiTaxonNode);
+										if(i < (tempListOfNCBITaxon.size() - 1)){
+											Edge edge = new Edge(tempListOfNCBITaxon.get(i), tempListOfNCBITaxon.get(i+1), "1", NCBI_TAXON_PARENT_GROUP);
+											edges.add(edge);
+										}
+									}
 									break;
 								}
 							}
