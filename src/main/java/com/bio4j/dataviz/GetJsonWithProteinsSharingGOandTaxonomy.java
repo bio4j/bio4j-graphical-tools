@@ -200,9 +200,13 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 							System.out.print("The taxon passed the NCBI filer!");
 						}else{
 							System.out.println("Looking for taxon in ancestors...");
-							while(taxon.ncbiTaxonParent_outV().isPresent()){
+
+							while(taxon.ncbiTaxonParent_inV().isPresent()){
+
 								System.out.println("Current taxon: " + taxon.scientificName() + " " + taxon.id());
-								taxon = taxon.ncbiTaxonParent_outV().get();
+
+								taxon = taxon.ncbiTaxonParent_inV().get();
+
 								if(ncbiTaxonIds.contains(taxon.id())){
 									finalListOfProteins.add(proteinId);
 									System.out.print("The taxon passed the NCBI filer!");
