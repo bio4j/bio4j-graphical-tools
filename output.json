@@ -1,0 +1,95 @@
+Protein accession	Protein name
+{
+  "nodes": [
+    {
+      "name": "P0A4K6",
+      "group": "protein"
+    },
+    {
+      "name": "P72533",
+      "group": "protein"
+    },
+    {
+      "name": "P21236",
+      "group": "protein"
+    },
+    {
+      "name": "Q54807",
+      "group": "protein"
+    },
+    {
+      "name": "P21233",
+      "group": "protein"
+    },
+    {
+      "name": "GO:0046677",
+      "group": "go"
+    },
+    {
+      "name": "1313",
+      "group": "ncbi_taxon"
+    }
+  ],
+  "edges": [
+    {
+      "source": "GO:0046677",
+      "target": "P0A4K6",
+      "value": "1",
+      "group": "protein_go"
+    },
+    {
+      "source": "1313",
+      "target": "P0A4K6",
+      "value": "1",
+      "group": "protein_ncbi_taxon"
+    },
+    {
+      "source": "GO:0046677",
+      "target": "P72533",
+      "value": "1",
+      "group": "protein_go"
+    },
+    {
+      "source": "1313",
+      "target": "P72533",
+      "value": "1",
+      "group": "protein_ncbi_taxon"
+    },
+    {
+      "source": "GO:0046677",
+      "target": "P21236",
+      "value": "1",
+      "group": "protein_go"
+    },
+    {
+      "source": "1313",
+      "target": "P21236",
+      "value": "1",
+      "group": "protein_ncbi_taxon"
+    },
+    {
+      "source": "GO:0046677",
+      "target": "Q54807",
+      "value": "1",
+      "group": "protein_go"
+    },
+    {
+      "source": "1313",
+      "target": "Q54807",
+      "value": "1",
+      "group": "protein_ncbi_taxon"
+    },
+    {
+      "source": "GO:0046677",
+      "target": "P21233",
+      "value": "1",
+      "group": "protein_go"
+    },
+    {
+      "source": "1313",
+      "target": "P21233",
+      "value": "1",
+      "group": "protein_ncbi_taxon"
+    }
+  ]
+}

@@ -31,7 +31,6 @@ import java.util.stream.Stream;
  */
 public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 
-	public static final String HEADER = "Protein accession\tProtein name";
 	public static final String PROTEIN_GROUP = "protein";
 	public static final String GO_GROUP = "go";
 	public static final String NCBI_TAXON_GROUP = "ncbi_taxon";
@@ -99,7 +98,6 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				reader.close();
 
 				BufferedWriter outBuff = new BufferedWriter(new FileWriter(outFile));
-				outBuff.write(HEADER + "\n");
 
 				//----------DB configuration------------------
 				Configuration conf = new BaseConfiguration();
@@ -187,7 +185,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				System.out.println("Checking up proteins taxonomy...");
 				for (String proteinId : proteinsFulfillingGO){
 
-					System.out.println("Current protein: " + proteinId);
+					//System.out.println("Current protein: " + proteinId);
 
 					Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein = titanUniprotGraph.proteinAccessionIndex().getVertex(proteinId).get();
 					Optional<NCBITaxon<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> taxonOptional = protein.proteinNCBITaxon_outV();
