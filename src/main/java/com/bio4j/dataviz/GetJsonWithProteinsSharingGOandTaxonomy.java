@@ -209,6 +209,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 
 							List<String> tempListOfNCBITaxon = new LinkedList<>();
 							HashSet<String> targetsInvolvedInEdgesAlreadyCreated = new HashSet<>();
+							List<String> taxonNodesAlreadyCreated = new LinkedList<>();
 
 							tempListOfNCBITaxon.add(taxon.id());
 
@@ -221,6 +222,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 								tempListOfNCBITaxon.add(taxon.id());
 
 								if(ncbiTaxonIds.contains(taxon.id())){
+
 									finalListOfProteins.add(proteinId);
 									System.out.print("The taxon passed the NCBI filer!");
 									tempListOfNCBITaxon.add(taxon.id());
@@ -229,12 +231,19 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 									//---Creating hierarchy nodes plus the edges among them---
 
 									for (int i=0; i< tempListOfNCBITaxon.size(); i++){
+
 										String tempTaxonId = tempListOfNCBITaxon.get(i);
-										Node ncbiTaxonNode = new Node(tempTaxonId, NCBI_TAXON_GROUP);
-										nodes.add(ncbiTaxonNode);
+
+										if(!taxonNodesAlreadyCreated.contains(tempTaxonId)){
+											Node ncbiTaxonNode = new Node(tempTaxonId, NCBI_TAXON_GROUP);
+											nodes.add(ncbiTaxonNode);
+											taxonNodesAlreadyCreated.add(tempTaxonId);
+										}
+
 										if(i < (tempListOfNCBITaxon.size() - 1)){
 											String target = tempListOfNCBITaxon.get(i+1);
 											String source = tempListOfNCBITaxon.get(i);
+
 											if(!targetsInvolvedInEdgesAlreadyCreated.contains(target)){
 												Edge edge = new Edge(source, target, "1", NCBI_TAXON_PARENT_GROUP);
 												edges.add(edge);
