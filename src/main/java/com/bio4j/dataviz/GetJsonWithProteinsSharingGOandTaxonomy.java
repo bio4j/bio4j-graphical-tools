@@ -184,6 +184,8 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				//Now it's time to check their taxonomy
 
 				System.out.println("Checking up proteins taxonomy...");
+				List<String> taxonNodesAlreadyCreated = new LinkedList<>();
+
 				for (String proteinId : proteinsFulfillingGO){
 
 					//System.out.println("Current protein: " + proteinId);
@@ -199,8 +201,11 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 						if(ncbiTaxonIds.contains(taxon.id())){
 
 							finalListOfProteins.add(proteinId);
-							Node ncbiTaxonNode = new Node(taxon.id(), NCBI_TAXON_GROUP);
-							nodes.add(ncbiTaxonNode);
+							if(!taxonNodesAlreadyCreated.contains(taxon.id())){
+								Node ncbiTaxonNode = new Node(taxon.id(), NCBI_TAXON_GROUP);
+								nodes.add(ncbiTaxonNode);
+								taxonNodesAlreadyCreated.add(taxon.id());
+							}
 							System.out.print("The taxon passed the NCBI filer!");
 
 						}else{
@@ -209,7 +214,6 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 
 							List<String> tempListOfNCBITaxon = new LinkedList<>();
 							HashSet<String> targetsInvolvedInEdgesAlreadyCreated = new HashSet<>();
-							List<String> taxonNodesAlreadyCreated = new LinkedList<>();
 
 							tempListOfNCBITaxon.add(taxon.id());
 
