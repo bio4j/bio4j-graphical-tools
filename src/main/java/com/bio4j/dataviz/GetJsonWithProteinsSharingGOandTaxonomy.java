@@ -279,7 +279,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 
 					Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein = titanUniprotGraph.proteinAccessionIndex().getVertex(proteinId).get();
 
-					com.bio4j.dataviz.model.Protein proteinNode = new com.bio4j.dataviz.model.Protein(protein.accession(), protein.name());
+					com.bio4j.dataviz.model.Protein proteinNode = new com.bio4j.dataviz.model.Protein(protein.accession(), protein.fullName());
 					nodes.add(proteinNode);
 
 					for(GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> goTerm : protein.goAnnotation_outV().get().collect(Collectors.toList())){

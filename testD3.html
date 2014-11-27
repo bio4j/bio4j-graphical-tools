@@ -135,7 +135,7 @@ function onStopStartButtonChange(button){
 d3.json("output.json", function(error, graph) {
 
  var nodeMap = {};
- graph.nodes.forEach(function(x) { nodeMap[x.name] = x; });
+ graph.nodes.forEach(function(x) { nodeMap[x.id] = x; });
  
  graph.edges = graph.edges.map(function(x) {
       return {
