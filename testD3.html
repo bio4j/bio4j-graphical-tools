@@ -33,12 +33,14 @@
            type="button"
            value="Start"
            onclick="onStopStartButtonChange(this)"/>
-    <form>
+    <!--
+	<form>
         <label>Show nodes</label>
         <input name="showNodeNamesCheckBox"
            type="checkbox"
            onclick="onShowNodeNamesChange(this)"/>
     </form>
+	-->
 </div>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script type="text/javascript"> if (!window.console) console = {log: function() {}}; </script>
@@ -48,8 +50,8 @@ var w = window,
     d = document,
     e = d.documentElement,
     g = d.getElementsByTagName('body')[0],
-    x = 1280,
-    y = 780;
+    x = 1000,
+    y = 600;
 	
 var nodesLength = 1;
 var gravity = 0.1;

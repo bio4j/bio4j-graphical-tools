@@ -5,18 +5,36 @@ package com.bio4j.dataviz.model;
  */
 public class Node {
 
+
+
+	public String id;
 	public String name;
 	public String group;
+
+	public Node() {
+	}
+
+	public Node(String id, String name, String group) {
+		this.id = id;
+		this.name = name;
+		this.group = group;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	public String getName() {
 		return name;
 	}
 
-	public Node() {
+
+	public String getId() {
+		return id;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public String getGroup() {
@@ -27,8 +45,5 @@ public class Node {
 		this.group = group;
 	}
 
-	public Node(String name, String group) {
-		this.name = name;
-		this.group = group;
-	}
+
 }

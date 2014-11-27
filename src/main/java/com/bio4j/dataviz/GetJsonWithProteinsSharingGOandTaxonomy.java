@@ -1,6 +1,7 @@
 package com.bio4j.dataviz;
 
 import com.bio4j.dataviz.model.Edge;
+import com.bio4j.dataviz.model.GOTerm;
 import com.bio4j.dataviz.model.Graph;
 import com.bio4j.dataviz.model.Node;
 import com.bio4j.model.go.vertices.GoTerm;
@@ -31,9 +32,6 @@ import java.util.stream.Stream;
  */
 public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 
-	public static final String PROTEIN_GROUP = "protein";
-	public static final String GO_GROUP = "go";
-	public static final String NCBI_TAXON_GROUP = "ncbi_taxon";
 	public static final String PROTEIN_GO_GROUP = "protein_go";
 	public static final String PROTEIN_NCBI_TAXON_GROUP = "protein_ncbi_taxon";
 	public static final String NCBI_TAXON_PARENT_GROUP = "ncbi_taxon_parent";
@@ -128,6 +126,8 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 
 				System.out.println("Retrieving GO terms...");
 
+				HashMap<String, String> goNames = new HashMap<>();
+
 				//---iterating through GO terms provided--
 				for (String goId : goTermIds){
 
@@ -136,6 +136,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 					if(goOptional.isPresent()){
 
 						GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> go = goOptional.get();
+						goNames.put(go.id(), go.name());
 
 						//---proteins linked to GO term---
 						Optional<Stream<Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>>> goAnnotationOptional = go.goAnnotation_inV();
@@ -202,7 +203,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 
 							finalListOfProteins.add(proteinId);
 							if(!taxonNodesAlreadyCreated.contains(taxon.id())){
-								Node ncbiTaxonNode = new Node(taxon.id(), NCBI_TAXON_GROUP);
+								com.bio4j.dataviz.model.NCBITaxon ncbiTaxonNode = new com.bio4j.dataviz.model.NCBITaxon(taxon.id(),taxon.scientificName());
 								nodes.add(ncbiTaxonNode);
 								taxonNodesAlreadyCreated.add(taxon.id());
 							}
@@ -213,9 +214,11 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 							System.out.println("Looking for taxon in ancestors...");
 
 							List<String> tempListOfNCBITaxon = new LinkedList<>();
+							HashMap<String, String> taxonNames = new HashMap<>();
 							HashSet<String> targetsInvolvedInEdgesAlreadyCreated = new HashSet<>();
 
 							tempListOfNCBITaxon.add(taxon.id());
+							taxonNames.put(taxon.id(), taxon.scientificName());
 
 							while(taxon.ncbiTaxonParent_inV().isPresent()){
 
@@ -224,12 +227,15 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 								taxon = taxon.ncbiTaxonParent_inV().get();
 
 								tempListOfNCBITaxon.add(taxon.id());
+								taxonNames.put(taxon.id(), taxon.scientificName());
 
 								if(ncbiTaxonIds.contains(taxon.id())){
 
 									finalListOfProteins.add(proteinId);
 									System.out.print("The taxon passed the NCBI filer!");
+
 									tempListOfNCBITaxon.add(taxon.id());
+									taxonNames.put(taxon.id(), taxon.scientificName());
 
 
 									//---Creating hierarchy nodes plus the edges among them---
@@ -239,7 +245,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 										String tempTaxonId = tempListOfNCBITaxon.get(i);
 
 										if(!taxonNodesAlreadyCreated.contains(tempTaxonId)){
-											Node ncbiTaxonNode = new Node(tempTaxonId, NCBI_TAXON_GROUP);
+											com.bio4j.dataviz.model.NCBITaxon ncbiTaxonNode = new com.bio4j.dataviz.model.NCBITaxon(tempTaxonId, taxonNames.get(tempTaxonId));
 											nodes.add(ncbiTaxonNode);
 											taxonNodesAlreadyCreated.add(tempTaxonId);
 										}
@@ -270,9 +276,12 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 
 				//-----PROTEINS-----
 				for (String proteinId : finalListOfProteins){
-					Node proteinNode = new Node(proteinId, PROTEIN_GROUP);
-					nodes.add(proteinNode);
+
 					Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein = titanUniprotGraph.proteinAccessionIndex().getVertex(proteinId).get();
+
+					com.bio4j.dataviz.model.Protein proteinNode = new com.bio4j.dataviz.model.Protein(protein.accession(), protein.name());
+					nodes.add(proteinNode);
+
 					for(GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> goTerm : protein.goAnnotation_outV().get().collect(Collectors.toList())){
 						if(goTermIds.contains(goTerm.id())){
 							Edge edge = new Edge(proteinId, goTerm.id(), "1", PROTEIN_GO_GROUP);
@@ -285,7 +294,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				}
 				//-----GO-----
 				for (String goId : goTermIds){
-					Node goNode = new Node(goId, GO_GROUP);
+					GOTerm goNode = new GOTerm(goId, goNames.get(goId));
 					nodes.add(goNode);
 				}
 
