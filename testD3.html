@@ -38,7 +38,22 @@
         <label>Show GO terms</label>
         <input name="showGoTermsCheckBox"
            type="checkbox"
-           onclick="onShowGoTermsChange(this)"/>
+           onclick="onShowGoTermsChange(this)"
+		   checked="true"/>
+    </form>
+	<form>
+        <label>Show Proteins</label>
+        <input name="showProteinsCheckBox"
+           type="checkbox"
+           onclick="onShowProteinsChange(this)"
+		   checked="true"/>
+    </form>
+	<form>
+        <label>Show NCBI taxonomic units</label>
+        <input name="showNCBITaxonomicUnitsCheckBox"
+           type="checkbox"
+           onclick="onShowNCBITaxonomicUnitsChange(this)"
+		   checked="true"/>
     </form>
 	
 </div>
@@ -110,14 +125,31 @@ function updateWindow(){
 }
 
 function onShowGoTermsChange(checkbox){
-    console.log(checkbox.checked);
     if(checkbox.checked == false){
 		svg.selectAll('g.gnode')
 			.filter(function(d){ return d.group == "go"; }) 
 			.remove();
-		console.log("edges size: " + edges.size());
-		var edges_filtered = edges.filter(function(d){ console.log("group: " + d.group); return d.group == "protein_go";});
-		console.log("edges filtered size: " + edges.size());
+		var edges_filtered = edges.filter(function(d){return d.group == "protein_go";});
+		edges_filtered.remove();
+	}	
+}
+
+function onShowProteinsChange(checkbox){
+    if(checkbox.checked == false){
+		svg.selectAll('g.gnode')
+			.filter(function(d){ return d.group == "protein"; }) 
+			.remove();
+		var edges_filtered = edges.filter(function(d){return ((d.group == "protein_go") || (d.group == "protein_ncbi_taxon"));});
+		edges_filtered.remove();
+	}	
+}
+
+function onShowNCBITaxonomicUnitsChange(checkbox){
+    if(checkbox.checked == false){
+		svg.selectAll('g.gnode')
+			.filter(function(d){ return d.group == "ncbi_taxon"; }) 
+			.remove();
+		var edges_filtered = edges.filter(function(d){return ((d.group == "ncbi_taxon_parent") || (d.group == "protein_ncbi_taxon"));});
 		edges_filtered.remove();
 	}	
 }
