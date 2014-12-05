@@ -224,17 +224,19 @@ d3.json("output.json", function(error, graph) {
 
   ncbiNodes = svg.selectAll('g.gnode')
     .filter(function(d){ return d.group == "ncbi_taxon"; })
+	.append("circle")
     .attr("class", "ncbinode")
     .attr("r", 15)
     .style("fill", function(d) { return color(d.group); });
 	
   ncbiNodes = svg.selectAll('g.gnode')
-    .filter(function(d){ return d.group == "ncbi_taxon"; })
+    .filter(function(d){ return d.group == "ncbi_taxon"; })	
 	.append("text")
     .text(function(d) { return d.name; });
 
   proteinNodes = svg.selectAll('g.gnode')
     .filter(function(d){ return d.group == "protein"; })
+	.append("rect")
     .attr("class", "proteinnode")
     .attr("width", 10)
     .attr("height", 10)
