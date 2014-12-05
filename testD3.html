@@ -222,23 +222,29 @@ d3.json("output.json", function(error, graph) {
     .append("text")
     .text(function(d) { return d.name; });
 
-  ncbiNodes = gnodes.append("circle")
+  ncbiNodes = svg.selectAll('g.gnode')
     .filter(function(d){ return d.group == "ncbi_taxon"; })
     .attr("class", "ncbinode")
     .attr("r", 15)
     .style("fill", function(d) { return color(d.group); });
+	
+  ncbiNodes = svg.selectAll('g.gnode')
+    .filter(function(d){ return d.group == "ncbi_taxon"; })
+	.append("text")
+    .text(function(d) { return d.name; });
 
-  proteinNodes = gnodes.append("rect")
+  proteinNodes = svg.selectAll('g.gnode')
     .filter(function(d){ return d.group == "protein"; })
     .attr("class", "proteinnode")
     .attr("width", 10)
     .attr("height", 10)
     .style("fill", function(d) { return color(d.group); });
-
-  // Append the labels to each group
-  //labels = gnodes.append("text")
-  //  .text(function(d) { return d.name; });
-
+	
+  proteinNodes = svg.selectAll('g.gnode')
+    .filter(function(d){ return d.group == "protein"; })
+	.append("text")
+    .text(function(d) { return d.name; });
+  
   force.on("tick", function() {
     edges.attr("x1", function(d) { return d.source.x; })
         .attr("y1", function(d) { return d.source.y; })
