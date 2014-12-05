@@ -33,14 +33,14 @@
            type="button"
            value="Start"
            onclick="onStopStartButtonChange(this)"/>
-    <!--
+    
 	<form>
-        <label>Show nodes</label>
-        <input name="showNodeNamesCheckBox"
+        <label>Show GO terms</label>
+        <input name="showGoTermsCheckBox"
            type="checkbox"
-           onclick="onShowNodeNamesChange(this)"/>
+           onclick="onShowGoTermsChange(this)"/>
     </form>
-	-->
+	
 </div>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script type="text/javascript"> if (!window.console) console = {log: function() {}}; </script>
@@ -59,6 +59,11 @@ var charge = -10;
 var linkDistance = 20;
 //var k = Math.sqrt(nodesLength / (x * y));
 var labels;
+var gnodes;
+var goNodes;
+var ncbiNodes;
+var proteinNodes;
+var edges;
 
 var nodeSizeScale = d3.scale.linear()
 		.domain([0,20])
@@ -104,11 +109,17 @@ function updateWindow(){
     y = w.innerHeight|| e.clientHeight|| g.clientHeight;
 }
 
-function onShowNodeNamesChange(checkbox){
-    console.log(checkbox.value);
-    labels.forEach(function(d){
-        console.log(d.display);
-        d.display = checkbox.value;});
+function onShowGoTermsChange(checkbox){
+    console.log(checkbox.checked);
+    if(checkbox.checked == false){
+		svg.selectAll('g.gnode')
+			.filter(function(d){ return d.group == "go"; }) 
+			.remove();
+		console.log("edges size: " + edges.size());
+		var edges_filtered = edges.filter(function(d){ console.log("group: " + d.group); return d.group == "protein_go";});
+		console.log("edges filtered size: " + edges.size());
+		edges_filtered.remove();
+	}	
 }
 
 function onForceResume(force){
@@ -141,25 +152,25 @@ d3.json("output.json", function(error, graph) {
       return {
         source: nodeMap[x.source],
         target: nodeMap[x.target],
-        value: x.value
+        value: x.value,
+		group: x.group
       };
  });
  
  nodesLength = graph.nodes.length;
  
-  force
-      .nodes(graph.nodes)
+  force.nodes(graph.nodes)
       .links(graph.edges);
 
-  var edge = svg.selectAll(".edge")
+  edges = svg.selectAll(".edge")
       .data(graph.edges)
-    .enter().append("line")
+      .enter().append("line")
       .attr("class", "edge")
       .style("stroke-width", function(d) { return Math.sqrt(d.value); });
 
 
   // Create the groups under svg
-  var gnodes = svg.selectAll('g.gnode')
+  gnodes = svg.selectAll('g.gnode')
     .data(graph.nodes)
     .enter()
     .append('g')
@@ -167,19 +178,25 @@ d3.json("output.json", function(error, graph) {
     .call(force.drag);
 
 
-  var goNode = gnodes.append("circle")
-    .filter(function(d){ return d.group == "go"; })
+  goNodes = svg.selectAll('g.gnode')
+	.filter(function(d){ return d.group == "go"; }) 
+    .append("circle")    
     .attr("class", "gonode")
     .attr("r", 10)
-    .style("fill", function(d) { return color(d.group); });
+    .style("fill", function(d) { return color(d.group); })
 	
-  var ncbiNode = gnodes.append("circle")
+  goNodes = svg.selectAll('g.gnode')
+    .filter(function(d){ return d.group == "go"; }) 
+    .append("text")
+    .text(function(d) { return d.name; });
+
+  ncbiNodes = gnodes.append("circle")
     .filter(function(d){ return d.group == "ncbi_taxon"; })
     .attr("class", "ncbinode")
     .attr("r", 15)
     .style("fill", function(d) { return color(d.group); });
 
-  var proteinNode = gnodes.append("rect")
+  proteinNodes = gnodes.append("rect")
     .filter(function(d){ return d.group == "protein"; })
     .attr("class", "proteinnode")
     .attr("width", 10)
@@ -187,11 +204,11 @@ d3.json("output.json", function(error, graph) {
     .style("fill", function(d) { return color(d.group); });
 
   // Append the labels to each group
-  labels = gnodes.append("text")
-    .text(function(d) { return d.name; });
+  //labels = gnodes.append("text")
+  //  .text(function(d) { return d.name; });
 
   force.on("tick", function() {
-    edge.attr("x1", function(d) { return d.source.x; })
+    edges.attr("x1", function(d) { return d.source.x; })
         .attr("y1", function(d) { return d.source.y; })
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; });
