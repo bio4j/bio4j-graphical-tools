@@ -4,14 +4,11 @@ import com.bio4j.dataviz.model.Edge;
 import com.bio4j.dataviz.model.GOTerm;
 import com.bio4j.dataviz.model.Graph;
 import com.bio4j.dataviz.model.Node;
-import com.bio4j.model.go.vertices.GoTerm;
-import com.bio4j.model.ncbiTaxonomy.vertices.NCBITaxon;
-import com.bio4j.model.uniprot.vertices.Protein;
 import com.bio4j.titan.model.go.TitanGoGraph;
 import com.bio4j.titan.model.ncbiTaxonomy.TitanNCBITaxonomyGraph;
-import com.bio4j.titan.model.uniprot.TitanUniprotGraph;
-import com.bio4j.titan.model.uniprot_go.TitanUniprotGoGraph;
-import com.bio4j.titan.model.uniprot_ncbiTaxonomy.TitanUniprotNCBITaxonomyGraph;
+import com.bio4j.titan.model.uniprot.TitanUniProtGraph;
+import com.bio4j.titan.model.uniprot_go.TitanUniProtGoGraph;
+import com.bio4j.titan.model.uniprot_ncbiTaxonomy.TitanUniProtNCBITaxonomyGraph;
 import com.bio4j.titan.util.DefaultTitanGraph;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -23,7 +20,6 @@ import org.apache.commons.configuration.Configuration;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by ppareja on 9/24/2014.
@@ -110,16 +106,16 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				System.out.println("Creating the graph managers....");
 
 				TitanGoGraph titanGoGraph = new TitanGoGraph(defGraph);
-				TitanUniprotGraph titanUniprotGraph = new TitanUniprotGraph(defGraph);
+				TitanUniProtGraph titanUniProtGraph = new TitanUniProtGraph(defGraph);
 				TitanNCBITaxonomyGraph titanNCBITaxonomyGraph = new TitanNCBITaxonomyGraph(defGraph);
 
-				TitanUniprotNCBITaxonomyGraph titanUniprotNCBITaxonomyGraph = new TitanUniprotNCBITaxonomyGraph(defGraph, titanUniprotGraph, titanNCBITaxonomyGraph);
-				TitanUniprotGoGraph titanUniprotGoGraph = new TitanUniprotGoGraph(defGraph, titanUniprotGraph, titanGoGraph);
+				TitanUniProtNCBITaxonomyGraph titanUniprotNCBITaxonomyGraph = new TitanUniProtNCBITaxonomyGraph(defGraph, titanUniProtGraph, titanNCBITaxonomyGraph);
+				TitanUniProtGoGraph titanUniProtGoGraph = new TitanUniProtGoGraph(defGraph, titanUniProtGraph, titanGoGraph);
 
-				titanGoGraph.withUniprot(titanUniprotGoGraph);
-				titanUniprotGraph.withGo(titanUniprotGoGraph);
-				titanUniprotGraph.withNCBITaxonomy(titanUniprotNCBITaxonomyGraph);
-				titanNCBITaxonomyGraph.withUniprot(titanUniprotNCBITaxonomyGraph);
+				titanGoGraph.withUniProt(titanUniProtGoGraph);
+				titanUniProtGraph.withGo(titanUniProtGoGraph);
+				titanUniProtGraph.withNCBITaxonomy(titanUniprotNCBITaxonomyGraph);
+				titanNCBITaxonomyGraph.withUniProt(titanUniprotNCBITaxonomyGraph);
 
 				boolean firstGo = true;
 
@@ -191,7 +187,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 
 					//System.out.println("Current protein: " + proteinId);
 
-					Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein = titanUniprotGraph.proteinAccessionIndex().getVertex(proteinId).get();
+					Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein = titanUniProtGraph.proteinAccessionIndex().getVertex(proteinId).get();
 					Optional<NCBITaxon<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> taxonOptional = protein.proteinNCBITaxon_outV();
 
 					if(taxonOptional.isPresent()){
@@ -277,7 +273,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				//-----PROTEINS-----
 				for (String proteinId : finalListOfProteins){
 
-					Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein = titanUniprotGraph.proteinAccessionIndex().getVertex(proteinId).get();
+					Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein = titanUniProtGraph.proteinAccessionIndex().getVertex(proteinId).get();
 
 					com.bio4j.dataviz.model.Protein proteinNode = new com.bio4j.dataviz.model.Protein(protein.accession(), protein.fullName());
 					nodes.add(proteinNode);
