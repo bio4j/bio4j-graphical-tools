@@ -4,6 +4,9 @@ import com.bio4j.dataviz.model.Edge;
 import com.bio4j.dataviz.model.GOTerm;
 import com.bio4j.dataviz.model.Graph;
 import com.bio4j.dataviz.model.Node;
+import com.bio4j.model.go.vertices.GoTerm;
+import com.bio4j.model.ncbiTaxonomy.vertices.NCBITaxon;
+import com.bio4j.model.uniprot.vertices.Protein;
 import com.bio4j.titan.model.go.TitanGoGraph;
 import com.bio4j.titan.model.ncbiTaxonomy.TitanNCBITaxonomyGraph;
 import com.bio4j.titan.model.uniprot.TitanUniProtGraph;
@@ -14,12 +17,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.ohnosequences.util.Executable;
 import com.thinkaurelius.titan.core.*;
+import com.thinkaurelius.titan.core.schema.EdgeLabelMaker;
+import com.thinkaurelius.titan.core.schema.VertexLabelMaker;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by ppareja on 9/24/2014.
@@ -112,10 +118,10 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				TitanUniProtNCBITaxonomyGraph titanUniprotNCBITaxonomyGraph = new TitanUniProtNCBITaxonomyGraph(defGraph, titanUniProtGraph, titanNCBITaxonomyGraph);
 				TitanUniProtGoGraph titanUniProtGoGraph = new TitanUniProtGoGraph(defGraph, titanUniProtGraph, titanGoGraph);
 
-				titanGoGraph.withUniProt(titanUniProtGoGraph);
-				titanUniProtGraph.withGo(titanUniProtGoGraph);
-				titanUniProtGraph.withNCBITaxonomy(titanUniprotNCBITaxonomyGraph);
-				titanNCBITaxonomyGraph.withUniProt(titanUniprotNCBITaxonomyGraph);
+				titanGoGraph.withUniProtGoGraph(titanUniProtGoGraph);
+				titanUniProtGraph.withUniProtGoGraph(titanUniProtGoGraph);
+				titanUniProtGraph.withUniProtNCBITaxonomyGraph(titanUniprotNCBITaxonomyGraph);
+				titanNCBITaxonomyGraph.withUniProtNCBITaxonomyGraph(titanUniprotNCBITaxonomyGraph);
 
 				boolean firstGo = true;
 
@@ -127,32 +133,33 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				//---iterating through GO terms provided--
 				for (String goId : goTermIds){
 
-					Optional<GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> goOptional = titanGoGraph.goTermIdIndex().getVertex(goId);
+					Optional<GoTerm<DefaultTitanGraph, TitanVertex, VertexLabelMaker, TitanEdge, EdgeLabelMaker>> goOptional =
+							titanGoGraph.goTermIdIndex().getVertex(goId);
 
 					if(goOptional.isPresent()){
 
-						GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> go = goOptional.get();
+						GoTerm<DefaultTitanGraph, TitanVertex, VertexLabelMaker, TitanEdge, EdgeLabelMaker> go = goOptional.get();
 						goNames.put(go.id(), go.name());
 
 						//---proteins linked to GO term---
-						Optional<Stream<Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>>> goAnnotationOptional = go.goAnnotation_inV();
+						Optional<Stream<Protein<DefaultTitanGraph, TitanVertex, VertexLabelMaker, TitanEdge, EdgeLabelMaker>>> goAnnotationOptional = go.goAnnotation_inV();
 
 						if(goAnnotationOptional.isPresent()){
 
-							Stream<Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> proteinsStream = goAnnotationOptional.get();
-							List<Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> proteins = proteinsStream.collect(Collectors.toList());
+							Stream<Protein<DefaultTitanGraph, TitanVertex, VertexLabelMaker, TitanEdge, EdgeLabelMaker>> proteinsStream = goAnnotationOptional.get();
+							List<Protein<DefaultTitanGraph, TitanVertex, VertexLabelMaker, TitanEdge, EdgeLabelMaker>> proteins = proteinsStream.collect(Collectors.toList());
 
 							//-----------------ALL-----------------------------------
 							if(goTermsConstraint.equals("all")){
 								if(firstGo){
 									firstGo = false;
-									for (Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein : proteins){
+									for (Protein<DefaultTitanGraph, TitanVertex, VertexLabelMaker, TitanEdge, EdgeLabelMaker> protein : proteins){
 										proteinsFulfillingGO.add(protein.accession());
 									}
 								}
 
 								List<String> tempProteins = new LinkedList<>();
-								for (Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein : proteins){
+								for (Protein<DefaultTitanGraph, TitanVertex, VertexLabelMaker, TitanEdge, EdgeLabelMaker> protein : proteins){
 									tempProteins.add(protein.accession());
 								}
 								for (String tempProteinId : tempProteins){
@@ -163,7 +170,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 								}
 								//-----------------ANY-----------------------------------
 							}else{
-								for (Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein : proteins){
+								for (Protein<DefaultTitanGraph, TitanVertex, VertexLabelMaker, TitanEdge, EdgeLabelMaker> protein : proteins){
 									String proteinAccession = protein.accession();
 									proteinsFulfillingGO.add(proteinAccession);
 									System.out.println("Protein found for GO term: " + proteinAccession);
@@ -187,11 +194,11 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 
 					//System.out.println("Current protein: " + proteinId);
 
-					Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein = titanUniProtGraph.proteinAccessionIndex().getVertex(proteinId).get();
-					Optional<NCBITaxon<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel>> taxonOptional = protein.proteinNCBITaxon_outV();
+					Protein<DefaultTitanGraph, TitanVertex, VertexLabelMaker, TitanEdge, EdgeLabelMaker> protein = titanUniProtGraph.proteinAccessionIndex().getVertex(proteinId).get();
+					Optional<NCBITaxon<DefaultTitanGraph, TitanVertex, VertexLabelMaker, TitanEdge, EdgeLabelMaker>> taxonOptional = protein.proteinNCBITaxon_outV();
 
 					if(taxonOptional.isPresent()){
-						NCBITaxon<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> taxon = taxonOptional.get();
+						NCBITaxon<DefaultTitanGraph, TitanVertex, VertexLabelMaker, TitanEdge, EdgeLabelMaker> taxon = taxonOptional.get();
 
 						System.out.println("Protein taxon: " + taxon.scientificName());
 
@@ -273,12 +280,12 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 				//-----PROTEINS-----
 				for (String proteinId : finalListOfProteins){
 
-					Protein<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> protein = titanUniProtGraph.proteinAccessionIndex().getVertex(proteinId).get();
+					Protein<DefaultTitanGraph, TitanVertex, VertexLabelMaker, TitanEdge, EdgeLabelMaker> protein = titanUniProtGraph.proteinAccessionIndex().getVertex(proteinId).get();
 
 					com.bio4j.dataviz.model.Protein proteinNode = new com.bio4j.dataviz.model.Protein(protein.accession(), protein.fullName());
 					nodes.add(proteinNode);
 
-					for(GoTerm<DefaultTitanGraph, TitanVertex, TitanKey, TitanEdge, TitanLabel> goTerm : protein.goAnnotation_outV().get().collect(Collectors.toList())){
+					for(GoTerm<DefaultTitanGraph, TitanVertex, VertexLabelMaker, TitanEdge, EdgeLabelMaker> goTerm : protein.goAnnotation_outV().get().collect(Collectors.toList())){
 						if(goTermIds.contains(goTerm.id())){
 							Edge edge = new Edge(proteinId, goTerm.id(), "1", PROTEIN_GO_GROUP);
 							edges.add(edge);
