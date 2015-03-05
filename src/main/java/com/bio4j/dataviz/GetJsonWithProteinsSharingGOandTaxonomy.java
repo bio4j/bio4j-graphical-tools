@@ -1,3 +1,6 @@
+/*
+ This program gets the Interpro motifs which are unique for an specific child of the NCBI taxon provided
+ */
 package com.bio4j.dataviz;
 
 import com.bio4j.dataviz.model.Edge;
@@ -27,11 +30,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Created by ppareja on 9/24/2014.
- *
- * This program gets the Interpro motifs which are unique for an specific child of the NCBI taxon provided
- */
 public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 
 	public static final String PROTEIN_GO_GROUP = "protein_go";
@@ -53,7 +51,7 @@ public class GetJsonWithProteinsSharingGOandTaxonomy implements Executable{
 					"1. Bio4j folder \n" +
 					"2. TXT file including GO terms \n" +
 					"3. TXT file including NCBI taxon IDs\n" +
-					"4. Output file name\n" +
+					"4. Output JSON file name\n" +
 					"5. GO terms constraint (all/any)");
 		}else{
 
