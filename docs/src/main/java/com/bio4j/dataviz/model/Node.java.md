@@ -1,10 +1,10 @@
 
+JSON POJO _(Plain Old Java Object)_ for a node
+
+
 ```java
 package com.bio4j.dataviz.model;
 
-/**
- * Created by ppareja on 10/29/2014.
- */
 public class Node {
 
 

@@ -1,12 +1,12 @@
 
+JSON POJO _(Plain Old Java Object)_ representing a graph.
+
+
 ```java
 package com.bio4j.dataviz.model;
 
 import java.util.List;
 
-/**
- * Created by ppareja on 10/29/2014.
- */
 public class Graph {
 
 	public Graph(){
